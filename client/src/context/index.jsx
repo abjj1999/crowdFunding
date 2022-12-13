@@ -23,18 +23,55 @@ export const StateContextProvider = ({ children }) => {
 
   const publishCampaign = async (form) => {
     console.log(form.target._hex);
+    console.log(form);
     try {
       const data = await createCampaign([
         address,
         form.title,
         form.description,
         form.target,
-        new Date(form.endDate).getTime(),
+        new Date(form.deadline).getTime(),
         form.image,
       ]);
       console.log("contract success", data);
     } catch (err) {
       console.log("contract error", err);
+    }
+  };
+
+  const getCampaigns = async () => {
+    try {
+      const campaigns = await contract.call("getCampaigns");
+
+      // console.log(campaigns);
+      const parsedCampaigns = campaigns.map((campaign, i) => ({
+        owner: campaign.owner,
+        title: campaign.title,
+        description: campaign.description,
+        target: ethers.utils.formatEther(campaign.target.toString()),
+        deadline: campaign.deadline.toNumber(),
+        image: campaign.image,
+        amountCollected: ethers.utils.formatEther(
+          campaign.amountCollected.toString()
+        ),
+        pId: i,
+      }));
+      console.log(parsedCampaigns);
+      return parsedCampaigns;
+    } catch (error) {}
+  };
+
+  const getUserCampaigns = async () => {
+    try {
+      const allCampaigns = await getCampaigns();
+
+      const userCampaigns = allCampaigns.filter(
+        (campaign) => campaign.owner === address
+      );
+
+      return userCampaigns;
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -45,6 +82,8 @@ export const StateContextProvider = ({ children }) => {
         connect,
         contract,
         createCampaign: publishCampaign,
+        getCampaigns,
+        getUserCampaigns,
       }}
     >
       {children}
