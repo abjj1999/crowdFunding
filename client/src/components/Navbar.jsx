@@ -3,12 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./";
 import { logo, menu, search, thirdweb } from "../assets";
 import { navlinks } from "../constants";
-
+import { useStateContext } from "../context";
 const Navbar = () => {
   const navigate = useNavigate();
   const [active, setActive] = useState("dashboard");
   const [toggleDrawer, setToggleDrawer] = useState(false);
-  const address = "0x1234567890123456789012345678901234567890";
+  // const address = "0x1234567890123456789012345678901234567890";
+  const { connect, address } = useStateContext();
   return (
     <div className="flex md:flex-row flex-col-reverse justify-between gap-6 mb-[35px]">
       <div className="lg:flex-1 flex flex-row max-w-[458px] rounded-[15px] py-2 pl-4 pr-2 h-[52px] bg-[#1c1c24]">
@@ -31,13 +32,13 @@ const Navbar = () => {
           title={address ? "Create Campaign" : "Connect Wallet"}
           // styles here might need to be changed
           styles={
-            address ? "bg-[#4acd8d] text-white" : "bg-[#1c1c24] text-white"
+            address ? "bg-[#1dc071] text-white" : "bg-[#8c6dfd] text-white"
           }
           handleClick={() => {
             if (address) {
               navigate("create-campaign");
             } else {
-              // connect wallet
+              connect();
             }
           }}
         />
@@ -119,7 +120,7 @@ const Navbar = () => {
                 if (address) {
                   navigate("create-campaign");
                 } else {
-                  // connect wallet
+                  connect();
                 }
               }}
             />

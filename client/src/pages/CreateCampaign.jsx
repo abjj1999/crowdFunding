@@ -4,10 +4,12 @@ import { ethers } from "ethers";
 import { money } from "../assets";
 import { Button, FormField } from "../components";
 import { checkIfImage } from "../utils";
+import { useStateContext } from "../context";
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const { createCampaign } = useStateContext();
   const [form, setForm] = useState({
     name: "",
     title: "",
@@ -17,7 +19,30 @@ const CreateCampaign = () => {
     image: "",
   });
 
-  const handleSubmit = async (e) => {};
+  const handleFormFieldsChange = (fieldName, e) => {
+    setForm({ ...form, [fieldName]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // console.log(ethers.utils.parseUnits(form.target, 18));
+    checkIfImage(form.image, async (exist) => {
+      if (exist) {
+        setIsLoading(true);
+        await createCampaign({
+          ...form,
+        });
+        setIsLoading(false);
+        // navigate("/");
+      } else {
+        alert("Image doesn't exist");
+        setForm({ ...form, image: "" });
+      }
+    });
+
+    // console.log(form);
+  };
+
   return (
     <div className="bg-[#1c1c24] flex justify-center items-center flex-col rounded-[10px] sm:p-10 p-4">
       {isLoading && "loading..."}
@@ -35,7 +60,9 @@ const CreateCampaign = () => {
             labelName="Your Name *"
             placeholder="John Doe"
             value={form.name}
-            handleChange={() => {}}
+            handleChange={(e) => {
+              handleFormFieldsChange("name", e);
+            }}
             inputType="text"
           />
           <FormField
@@ -43,7 +70,9 @@ const CreateCampaign = () => {
             placeholder="Write a title for your campaign"
             inputType="text"
             value={form.title}
-            handleChange={() => {}}
+            handleChange={(e) => {
+              handleFormFieldsChange("title", e);
+            }}
           />
         </div>
         <FormField
@@ -51,7 +80,9 @@ const CreateCampaign = () => {
           placeholder="Write a Story"
           isTextArea
           value={form.description}
-          handleChange={() => {}}
+          handleChange={(e) => {
+            handleFormFieldsChange("description", e);
+          }}
         />
         <div className="w-full flex justify-start items-center p-4 bg-[#8c6dfd] h-[120px] rounded-[10px]">
           <img
@@ -68,7 +99,9 @@ const CreateCampaign = () => {
             labelName="Goal *"
             placeholder="Eth 0.50"
             value={form.target}
-            handleChange={() => {}}
+            handleChange={(e) => {
+              handleFormFieldsChange("target", e);
+            }}
             inputType="text"
           />
           <FormField
@@ -76,16 +109,27 @@ const CreateCampaign = () => {
             placeholder="End Date"
             inputType="date"
             value={form.deadline}
-            handleChange={() => {}}
+            handleChange={(e) => {
+              handleFormFieldsChange("deadline", e);
+            }}
           />
+        </div>
+        <FormField
+          labelName="Campaign Image *"
+          placeholder="Campaign Image"
+          inputType="url"
+          value={form.image}
+          handleChange={(e) => {
+            handleFormFieldsChange("image", e);
+          }}
+        />
 
-          <div className="flex justify-center items-center mt-[40px]">
-            <Button
-              btnType="submit"
-              title="Submit your Campaign"
-              styles="bg-[#1dc071] "
-            />
-          </div>
+        <div className="flex justify-center items-center mt-[40px]">
+          <Button
+            btnType="submit"
+            title="Submit your Campaign"
+            styles="bg-[#1dc071] "
+          />
         </div>
       </form>
     </div>
